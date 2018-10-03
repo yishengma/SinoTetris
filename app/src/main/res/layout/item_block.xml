@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><!--在这里设置单元格的宽高-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="40dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="40dp"
+    android:orientation="vertical">
+
+    <TextView
+
+        tools:text="东"
+        android:textSize="30sp"
+        android:id="@+id/tv_block_text"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:background="@drawable/blank_background" />
+
+</LinearLayout>

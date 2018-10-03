@@ -49,21 +49,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-//            blockList.set(index++, 1);
-//            blockAdapter.setmDatas(blockList);
-//            blockAdapter.notifyDataSetChanged();
-//            rand=2;
-            boolean isNewTimer=true;
 
-
-
-//            rand = StateFang.nextShape[rand];
-//            blockList.clear();
-//            for(int i=0;i<10;i++){
-//                for(int j=0;j<15;j++){
-//                    blockList.set(j*10+i, 0);
-//                }
-//            }
             // 将正在下落的方块与停止下落的方块区别对待
             for (int i=0;i<ySize;i++) {
                 if (allBlock[i] == 0) {
@@ -75,11 +61,6 @@ public class MainActivity extends AppCompatActivity {
                         blockList.set(i * xSize + j, blockColor[i][j]);
                     }
                 }
-//                for (int j=0;j<xSize;j++) {
-//                    if (((1 << j)& (allBlock[i]))!=0) {
-//                        blockList.set(i * xSize + j, 1);
-//                    }
-//                }
             }
 
             boolean canMove = true;
@@ -136,41 +117,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-//
-//            for(int i=3;i>=0;i--) {
-//                int line = i + position[0];
-//                if (line >= 0 && StateFang.shape[rand][i] != 0) {
-//                    //如果到底了，或者下面有方块
-//                    if (line >= ySize-1 ||
-//                            ((allBlock[line+1] & (leftMath(StateFang.shape[rand][i] ,position[1]))) != 0)
-//                            ) {
-//                        if (isNewTimer && msg.what == 0) {
-//                            stop++;
-//                            isNewTimer = false;
-//                        }
-//
-//                    }
-//
-//                    for (int j=0;j<xSize;j++) {
-//                        if (((1 << j)& (leftMath(StateFang.shape[rand][i] ,position[1])))!=0) {
-//                            blockList.set(line * xSize + j, randColor);
-//                        }
-//                    }
-//                }
-//            }
+
 
             blockAdapter.setmDatas(blockList);
             blockAdapter.notifyDataSetChanged();
 
-//            if (stop==2) {
-//                stopDown();
-//
-//                stop = 0;
-//
-//
-//            } else if (stop == 0 && msg.what == 0) {
-//                position[0]++;
-//            }
         }
     };
 
