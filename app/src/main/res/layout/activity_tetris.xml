@@ -35,6 +35,7 @@
             android:textColor="@color/colorWhite"
             android:textSize="15sp"
             android:textStyle="bold" />
+
         <Button
             android:id="@+id/btn_left"
             android:layout_width="match_parent"
@@ -46,23 +47,29 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <GridView
-            android:id="@+id/gv_game"
+        <RelativeLayout
+            android:id="@+id/rv_game"
             android:layout_width="match_parent"
-            android:layout_height="440dp"
-            android:numColumns="6">
+            android:layout_height="440dp">
 
-        </GridView>
+            <GridView
+                android:id="@+id/gv_game"
+                android:layout_width="match_parent"
+                android:layout_height="440dp"
+                android:numColumns="6">
+
+            </GridView>
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/tv_score"
-            tools:text="0 0 0 0 0"
-            android:textSize="30sp"
-            android:gravity="center"
-            android:background="@color/colorBlue"
-            android:textColor="@color/colorWhite"
             android:layout_width="match_parent"
-            android:layout_height="40dp" />
+            android:layout_height="40dp"
+            android:background="@color/colorBlue"
+            android:gravity="center"
+            android:textColor="@color/colorWhite"
+            android:textSize="30sp"
+            tools:text="0 0 0 0 0" />
 
         <TextView
             android:layout_width="match_parent"
@@ -102,6 +109,7 @@
             android:textColor="@color/colorWhite"
             android:textSize="15sp"
             android:textStyle="bold" />
+
         <Button
             android:id="@+id/btn_right"
             android:layout_width="match_parent"

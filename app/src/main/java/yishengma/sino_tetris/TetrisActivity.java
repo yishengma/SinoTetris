@@ -1,21 +1,26 @@
 package yishengma.sino_tetris;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import yishengma.CharacterBlock;
+import yishengma.bean.BlockView;
+import yishengma.utils.DensityUtil;
 
 public class TetrisActivity extends AppCompatActivity {
 
@@ -36,16 +41,18 @@ public class TetrisActivity extends AppCompatActivity {
     Button mBtnLeft;
     @BindView(R.id.btn_right)
     Button mBtnRight;
-
+    @BindView(R.id.rv_game)
+    RelativeLayout mRvGame;
     private TetrisAdapter mTetrisAdapter;
-    private CharacterBlock[][] mCharacterBlocks;
-    private Timer mTimer;
-    private int mLastRow;
-    private int mLastColumn;
-    private int mOffsetRow;
-    private int mOffsetColumn;
-    private TimerHandler mHandler;
-    private int mHeight[];
+    private int[] mHeight;
+    private BlockView mCurrentBlockView;
+    private BlockView[][] mBlockViews;
+    private TetrisHandler mHandler;
+    private volatile boolean mIsVertical;
+    private volatile boolean mIsThreadCancel;
+    private volatile boolean mIsHorizon;
+    private int mHorizon;
+
 
 
     @Override
@@ -55,103 +62,155 @@ public class TetrisActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         init();
 
+
     }
 
 
     private void init() {
 
-        mCharacterBlocks = new CharacterBlock[11][6];
-        for (int i = 0; i < 11; i++) {
-            for (int j = 0; j < 6; j++) {
-                mCharacterBlocks[i][j] = new CharacterBlock(true);
 
-            }
-        }
-        mTetrisAdapter = new TetrisAdapter(TetrisActivity.this, mCharacterBlocks);
+        mTetrisAdapter = new TetrisAdapter(TetrisActivity.this, 11 * 6);
         mGvGame.setAdapter(mTetrisAdapter);
+        mBlockViews = new BlockView[11][6];
+        mHandler = new TetrisHandler();
+        mIsVertical = true;
+        mIsHorizon = false;
+        mIsThreadCancel = false;
+        mHeight = new int[]{0, 0, 0, 0, 0, 0};
+        generateBlock();
+    }
 
-        mOffsetColumn = 3;
-        mOffsetRow = -1;
-        mHeight = new int[6];
-        for (int i = 0; i < 6; i++) {
-            mHeight[i] = 0;
+    private void generateBlock() {
+        mCurrentBlockView = (BlockView) LayoutInflater.from(TetrisActivity.this)
+                .inflate(R.layout.view_block, mRvGame, false);
+        mRvGame.addView(mCurrentBlockView);
+        mCurrentBlockView.bringToFront();
+        mCurrentBlockView.setRow(0).setColumn(3);
+        if (mHeight[3]==10){
+            return;
         }
-        mHandler = new TimerHandler();
-        mTimer = new Timer();
-        mTimer.schedule(new TimerTask() {
+        mIsVertical = true;
+        mIsHorizon = false;
+        mIsThreadCancel = false;
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                mHandler.sendEmptyMessage(0);
+                while (!mIsThreadCancel) {
+                    if (mIsVertical&&!mIsHorizon) {
+                        mIsVertical = false;
+                        mHandler.sendEmptyMessage(0);
+                    }
+                }
             }
-        }, 0, 800);
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!mIsThreadCancel) {
+                    if (!mIsVertical&& mIsHorizon) {
+                        mIsHorizon = false;
+                        mHandler.sendEmptyMessage(1);
+                    }
+                }
+            }
+        }).start();
 
     }
 
     @OnClick({R.id.btn_left, R.id.btn_right})
     public void onViewClicked(View view) {
+        int row = mCurrentBlockView.getRow();
+        int col = mCurrentBlockView.getColumn();
         switch (view.getId()) {
             case R.id.btn_left:
-                if (mOffsetColumn!=0){
-                    mOffsetColumn--;
-
+                if (row!=0&&row + mHeight[row-1] < 11){
+                    mHorizon = row-1;
+                    mIsVertical = false;
+                    mIsHorizon = true;
                 }
-                mHandler.sendEmptyMessage(1);
-                break;
             case R.id.btn_right:
-                if (mOffsetColumn!=5){
-                    mOffsetColumn++;
+                if (row!=5&&row + mHeight[row+1] < 11){
+                    mHorizon = row+1;
+                    mIsVertical = false;
+                    mIsHorizon = true;
                 }
-                mHandler.sendEmptyMessage(1);
                 break;
         }
     }
 
-    private class TimerHandler extends Handler {
+    private ObjectAnimator verticalAnimation(BlockView view) {
+        int i = view.getRow(); // i 是这位置的
+        ObjectAnimator animator = ObjectAnimator.ofFloat(view, "translationY", DensityUtil.dip2px(this, (i + 1) * 40));
+        animator.setDuration(300);
+        animator.setRepeatCount(0);
+        animator.setInterpolator(new LinearInterpolator());
+        return animator;
+
+
+    }
+
+    private ObjectAnimator horizonAnimation(BlockView view, int i) {  // i 是下一个位置的
+        ObjectAnimator animator = ObjectAnimator.ofFloat(view, "translationX", DensityUtil.dip2px(this, (i - 3) * 40));
+        animator.setDuration(100);
+        animator.setRepeatCount(0);
+        animator.setInterpolator(new LinearInterpolator());
+        return animator;
+    }
+
+    private class TetrisHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-
-            if (msg.what == 0) {
-
-                if (mOffsetRow < 11 - mHeight[mOffsetColumn]){
-
-                    mOffsetRow++;
-                    if (mOffsetRow != 0) {
-                        mCharacterBlocks[mLastRow][mLastColumn].setEmpty(true);
-                        mCharacterBlocks[mLastRow][mLastColumn].setText("");
-                    }
-                    mCharacterBlocks[mOffsetRow][mOffsetColumn].setEmpty(false);
-                    mCharacterBlocks[mOffsetRow][mOffsetColumn].setText("子");
-
-                    mLastRow = mOffsetRow;
-                    mLastColumn = mOffsetColumn;
-
-
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:
+                    ObjectAnimator verticalAnimator = verticalAnimation(mCurrentBlockView);
+                    verticalAnimator.start();
+                    verticalAnimator.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mCurrentBlockView.setRow(mCurrentBlockView.getRow() + 1);
+                            if (mCurrentBlockView.getRow()+ 1 + mHeight[mCurrentBlockView.getColumn()] ==11){
+                                mHeight[mCurrentBlockView.getColumn()]++;
+                                mIsThreadCancel = true;
+                                generateBlock();
+                            }else if (mIsHorizon&&!mIsVertical){
 
 
-                }else {
-                    mOffsetRow=0;
-                    mHeight[mOffsetColumn]++;
-
-                }
-
+                            }else {
+                                mIsVertical = true;
+                                mIsHorizon = false;
+                            }
 
 
-            }else {
+                        }
+                    });
+                    break;
+                case 1:
+                    Log.e(TAG, "handleMessage: 1" );
+                    ObjectAnimator animator = horizonAnimation(mCurrentBlockView,mHorizon);
+                    animator.start();
+                    animator.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mCurrentBlockView.setColumn(mCurrentBlockView.getRow() + 1);
+                            if (mCurrentBlockView.getRow()+ 1 + mHeight[mCurrentBlockView.getColumn()] ==11){
+                                mHeight[mCurrentBlockView.getColumn()]++;
+                                mIsThreadCancel = true;
+                                generateBlock();
+                            }else {
+                                mIsVertical = true;
+                                mIsHorizon = false;
+                            }
+                        }
+                    });
+                    break;
 
-                if (mOffsetRow != 0) {
-                    mCharacterBlocks[mLastRow][mLastColumn].setEmpty(true);
-                    mCharacterBlocks[mLastRow][mLastColumn].setText("");
-                }
 
-                mCharacterBlocks[mOffsetRow][mOffsetColumn].setEmpty(false);
-                mCharacterBlocks[mOffsetRow][mOffsetColumn].setText("子");
-
-                mLastRow = mOffsetRow;
-                mLastColumn = mOffsetColumn;
             }
-
-            mTetrisAdapter.notifyDataSetChanged();
         }
-    }
 
+    }
 }

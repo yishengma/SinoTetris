@@ -26,11 +26,10 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     Button pausebtn;
-    TextView levelTextView;
+
     int timeInterval=800;
     BlockAdapter nextTetrisAdapter;
-    int highestScore=0;
-    CacheUtils cacheUtils;
+
     int[][] blockColor = new int[15][10];
 
     int score =0;
@@ -40,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     Button leftMove,rightMove, rotateMove, downMove;
     int rand;
     int[] position=new int[]{-4,4};//positin[0]为y方向位置
-    int[] qu=new int[4];
 
     Timer timer;
     int stop = 0;
@@ -142,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void gameOver() {
-        cacheUtils.putValue("highestScore"+grade, String.valueOf(highestScore));
+
         stopTimer();
         AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
         dialog.setTitle("游戏结束");
@@ -235,33 +233,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        cacheUtils = new CacheUtils(MainActivity.this, "UserInfo");
-        String maxString = "";
-        try {
-            maxString = cacheUtils.getValue("highestScore"+grade, String.valueOf(0));
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
-
-
-        try {
-            highestScore = Integer.parseInt(maxString.toString());
-        } catch (NumberFormatException e) {
-            highestScore=0;
-        }
 
         leftMove = (Button) findViewById(R.id.left_move);
         rightMove = (Button) findViewById(R.id.right_move);
-        rotateMove = (Button) findViewById(R.id.rotate_move);
         downMove = (Button) findViewById(R.id.down_move);
-        scoreTextView = (TextView) findViewById(R.id.score);
-        maxScoreTextView = (TextView) findViewById(R.id.maxScore);
-        speedTextView = (TextView) findViewById(R.id.speed);
-        levelTextView = (TextView) findViewById(R.id.level);
-        maxScoreTextView.setText("最高分：" + highestScore);
-        scoreTextView.setText("分数："+score);
-        levelTextView.setText("等级：" + grade);
-        speedTextView.setText("速度：" +1000.0 / timeInterval);
 
 
         leftMove.setOnClickListener(new View.OnClickListener() {
@@ -538,25 +513,7 @@ public class MainActivity extends AppCompatActivity {
                 i--;
             }
         }
-        if (allBlock[0] != 0) {
-            if (score > highestScore) {
-                cacheUtils.getValue("highestScore"+grade, score +"");
-                highestScore = score;
-                maxScoreTextView.setText("最高分：" + highestScore);
-                scoreTextView.setText("分数："+score);
 
-            }
-
-            gameOver();
-        }
-
-//                for(int i=0;i<ySize;i++) {
-//                    if(allBlock[i] == 0x7fff){
-//
-//                    }
-//                }
-
-//                position = new int[]{-4, 4};
         rand = nextRand;
         position[0] = StateFang.initPosition[rand][1];
         position[1] = StateFang.initPosition[rand][0];
