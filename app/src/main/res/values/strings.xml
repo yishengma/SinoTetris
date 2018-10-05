@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AndroidTetris</string>
+    <string name="app_name">SinoTetris</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_strock">边框模式</string>
     <string name="action_fill">填充模式</string>

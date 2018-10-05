@@ -7,6 +7,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 /**
+ *
  * Created by PirateHat on 18-10-3.
  */
 
@@ -15,9 +16,9 @@ public class TetrisAdapter extends BaseAdapter {
     private int mCount;
 
 
-    private static final String TAG = "TetrisAdapter";
 
-    public TetrisAdapter(Context context, int count) {
+
+    TetrisAdapter(Context context, int count) {
         mContext = context;
         mCount = count;
 
@@ -41,16 +42,15 @@ public class TetrisAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder = null;
+        ViewHolder viewHolder;
         if (convertView == null) {
             convertView = View.inflate(mContext, R.layout.item_block, null);
             viewHolder = new ViewHolder();
             viewHolder.mBlankBlock = convertView.findViewById(R.id.tv_block_text);
             convertView.setTag(viewHolder);
 
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
         }
+
         return convertView;
     }
 
