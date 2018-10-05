@@ -16,6 +16,9 @@ import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.Arrays;
+import java.util.Queue;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -47,12 +50,10 @@ public class TetrisActivity extends AppCompatActivity {
     private int[] mHeight;
     private BlockView mCurrentBlockView;
     private BlockView[][] mBlockViews;
-    private TetrisHandler mHandler;
-    private volatile boolean mIsVertical;
-    private volatile boolean mIsThreadCancel;
-    private volatile boolean mIsHorizon;
-    private int mHorizon;
-
+    private boolean mIsLeftMove;
+    private boolean mIsRightMove;
+    private LinearInterpolator mLinearInterpolator;
+    private ObjectAnimator mObjectAnimator;
 
 
     @Override
@@ -72,11 +73,8 @@ public class TetrisActivity extends AppCompatActivity {
         mTetrisAdapter = new TetrisAdapter(TetrisActivity.this, 11 * 6);
         mGvGame.setAdapter(mTetrisAdapter);
         mBlockViews = new BlockView[11][6];
-        mHandler = new TetrisHandler();
-        mIsVertical = true;
-        mIsHorizon = false;
-        mIsThreadCancel = false;
         mHeight = new int[]{0, 0, 0, 0, 0, 0};
+        mLinearInterpolator = new LinearInterpolator();
         generateBlock();
     }
 
@@ -86,35 +84,10 @@ public class TetrisActivity extends AppCompatActivity {
         mRvGame.addView(mCurrentBlockView);
         mCurrentBlockView.bringToFront();
         mCurrentBlockView.setRow(0).setColumn(3);
-        if (mHeight[3]==10){
+        if (mCurrentBlockView.getRow() + 1 + mHeight[mCurrentBlockView.getColumn()] >= 11) {
             return;
         }
-        mIsVertical = true;
-        mIsHorizon = false;
-        mIsThreadCancel = false;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!mIsThreadCancel) {
-                    if (mIsVertical&&!mIsHorizon) {
-                        mIsVertical = false;
-                        mHandler.sendEmptyMessage(0);
-                    }
-                }
-            }
-        }).start();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!mIsThreadCancel) {
-                    if (!mIsVertical&& mIsHorizon) {
-                        mIsHorizon = false;
-                        mHandler.sendEmptyMessage(1);
-                    }
-                }
-            }
-        }).start();
+        verticalAnimation();
 
     }
 
@@ -122,95 +95,91 @@ public class TetrisActivity extends AppCompatActivity {
     public void onViewClicked(View view) {
         int row = mCurrentBlockView.getRow();
         int col = mCurrentBlockView.getColumn();
+
         switch (view.getId()) {
             case R.id.btn_left:
-                if (row!=0&&row + mHeight[row-1] < 11){
-                    mHorizon = row-1;
-                    mIsVertical = false;
-                    mIsHorizon = true;
+                if (mBtnLeft.isEnabled() && col != 0 && row + mHeight[col - 1] < 11) {
+                    mIsLeftMove = true;
+                    mBtnLeft.setEnabled(false);
+                    mBtnRight.setEnabled(false);
                 }
+                break;
             case R.id.btn_right:
-                if (row!=5&&row + mHeight[row+1] < 11){
-                    mHorizon = row+1;
-                    mIsVertical = false;
-                    mIsHorizon = true;
+
+                if (mBtnRight.isEnabled() && col != 5 && row + mHeight[col + 1] < 11) {
+                    mIsRightMove = true;
+                    mBtnLeft.setEnabled(false);
+                    mBtnRight.setEnabled(false);
                 }
                 break;
         }
     }
 
-    private ObjectAnimator verticalAnimation(BlockView view) {
-        int i = view.getRow(); // i 是这位置的
-        ObjectAnimator animator = ObjectAnimator.ofFloat(view, "translationY", DensityUtil.dip2px(this, (i + 1) * 40));
-        animator.setDuration(300);
-        animator.setRepeatCount(0);
-        animator.setInterpolator(new LinearInterpolator());
-        return animator;
+    private void verticalAnimation() {
+        mCurrentBlockView.setRow(mCurrentBlockView.getRow() + 1);
+        mCurrentBlockView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        mObjectAnimator = ObjectAnimator.ofFloat(mCurrentBlockView, "translationY", DensityUtil.dip2px(this, (mCurrentBlockView.getRow()) * 40));
+        mObjectAnimator.setDuration(500);
+        mObjectAnimator.setRepeatCount(0);
+        mObjectAnimator.setInterpolator(mLinearInterpolator);
+        mObjectAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mCurrentBlockView.setLayerType(View.LAYER_TYPE_NONE, null);
+
+                if (mIsLeftMove) {
+                    mIsLeftMove = false;
+                    horizonAnimation(mCurrentBlockView.getColumn() - 1);
+                    return;
+                }
+                if (mIsRightMove) {
+                    mIsRightMove = false;
+                    horizonAnimation(mCurrentBlockView.getColumn() + 1);
+                    return;
+                }
+
+                if (mCurrentBlockView.getRow() + 1 + mHeight[mCurrentBlockView.getColumn()] >= 11) {
+                    mHeight[mCurrentBlockView.getColumn()]++;
+                    generateBlock();
+                    return;
+                }
 
 
-    }
 
-    private ObjectAnimator horizonAnimation(BlockView view, int i) {  // i 是下一个位置的
-        ObjectAnimator animator = ObjectAnimator.ofFloat(view, "translationX", DensityUtil.dip2px(this, (i - 3) * 40));
-        animator.setDuration(100);
-        animator.setRepeatCount(0);
-        animator.setInterpolator(new LinearInterpolator());
-        return animator;
-    }
-
-    private class TetrisHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 0:
-                    ObjectAnimator verticalAnimator = verticalAnimation(mCurrentBlockView);
-                    verticalAnimator.start();
-                    verticalAnimator.addListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            mCurrentBlockView.setRow(mCurrentBlockView.getRow() + 1);
-                            if (mCurrentBlockView.getRow()+ 1 + mHeight[mCurrentBlockView.getColumn()] ==11){
-                                mHeight[mCurrentBlockView.getColumn()]++;
-                                mIsThreadCancel = true;
-                                generateBlock();
-                            }else if (mIsHorizon&&!mIsVertical){
-
-
-                            }else {
-                                mIsVertical = true;
-                                mIsHorizon = false;
-                            }
-
-
-                        }
-                    });
-                    break;
-                case 1:
-                    Log.e(TAG, "handleMessage: 1" );
-                    ObjectAnimator animator = horizonAnimation(mCurrentBlockView,mHorizon);
-                    animator.start();
-                    animator.addListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            mCurrentBlockView.setColumn(mCurrentBlockView.getRow() + 1);
-                            if (mCurrentBlockView.getRow()+ 1 + mHeight[mCurrentBlockView.getColumn()] ==11){
-                                mHeight[mCurrentBlockView.getColumn()]++;
-                                mIsThreadCancel = true;
-                                generateBlock();
-                            }else {
-                                mIsVertical = true;
-                                mIsHorizon = false;
-                            }
-                        }
-                    });
-                    break;
-
-
+                verticalAnimation();
             }
-        }
+        });
+        mObjectAnimator.start();
 
     }
+
+    private void horizonAnimation(final int nextCol) {
+
+        mCurrentBlockView.setColumn(nextCol);
+        mObjectAnimator = ObjectAnimator.ofFloat(mCurrentBlockView, "translationX", DensityUtil.dip2px(this, (nextCol - 3) * 40));
+        mObjectAnimator.setDuration(300);
+        mObjectAnimator.setRepeatCount(0);
+        mCurrentBlockView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        mObjectAnimator.setInterpolator(mLinearInterpolator);
+        mObjectAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mBtnRight.setEnabled(true);
+                mBtnLeft.setEnabled(true);
+                mCurrentBlockView.setLayerType(View.LAYER_TYPE_NONE, null);
+                if (mCurrentBlockView.getRow() + 1 + mHeight[mCurrentBlockView.getColumn()] >= 11) {
+                    mHeight[mCurrentBlockView.getColumn()]++;
+                    generateBlock();
+                    return;
+                }
+
+                verticalAnimation();
+            }
+        });
+
+        mObjectAnimator.start();
+    }
+
 }

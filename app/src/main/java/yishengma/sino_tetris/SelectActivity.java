@@ -32,26 +32,6 @@ public class SelectActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(SelectActivity.this,TetrisActivity.class);
-
-        switch (v.getId()) {
-            case R.id.grade1:
-                intent.putExtra("grade", 1);
-                break;
-            case R.id.grade2:
-                intent.putExtra("grade", 2);
-                break;
-            case R.id.grade3:
-                intent.putExtra("grade", 3);
-                break;
-            case R.id.grade4:
-                intent.putExtra("grade", 4);
-                break;
-            case R.id.grade5:
-                intent.putExtra("grade", 5);
-                break;
-            default:
-                break;
-        }
         startActivity(intent);
     }
 }
