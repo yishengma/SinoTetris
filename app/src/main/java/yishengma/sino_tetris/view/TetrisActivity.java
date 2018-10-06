@@ -1,16 +1,22 @@
-package yishengma.sino_tetris;
+package yishengma.sino_tetris.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 
 import android.animation.ValueAnimator;
+
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+
 import android.os.Bundle;
 
 
 import android.support.v7.app.AppCompatActivity;
 
 import android.text.TextUtils;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,18 +27,20 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Random;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import yishengma.bean.BlockView;
-import yishengma.utils.DensityUtil;
+import yishengma.sino_tetris.R;
+import yishengma.sino_tetris.bean.BlockView;
+import yishengma.sino_tetris.adapter.TetrisAdapter;
+import yishengma.sino_tetris.utils.ColorUtil;
+import yishengma.sino_tetris.utils.DensityUtil;
 
-import static yishengma.utils.ColorUtil.choseColor;
 
 public class TetrisActivity extends AppCompatActivity {
 
@@ -63,6 +71,9 @@ public class TetrisActivity extends AppCompatActivity {
     private boolean mIsRightMove;
     private LinearInterpolator mLinearInterpolator;
     private ObjectAnimator mObjectAnimator;
+    private SoundPool mSoundPool;
+    private HashMap<String, Integer> mMusicMap;
+    private float mVolume;
 
 
     @Override
@@ -71,31 +82,70 @@ public class TetrisActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tetris);
         ButterKnife.bind(this);
         init();
-        // choseColor(getResources());
 
     }
 
 
-    private void init() {
 
+    private void init() {
+        initSoundPool();
+        initView();
+        initData();
+        ColorUtil.init(getResources());
+        generateBlock();
+
+    }
+    private void initSoundPool() {
+        AudioManager manager = (AudioManager) this.getSystemService(AUDIO_SERVICE);
+        if (manager != null) {
+            int maxVolume = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int currentVolume = manager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            mVolume = currentVolume / (float) maxVolume;
+        }
+        SoundPool.Builder builder = new SoundPool.Builder();
+        //传入音频的数量
+        builder.setMaxStreams(3);
+        //AudioAttributes是一个封装音频各种属性的类
+        AudioAttributes.Builder attrBuilder = new AudioAttributes.Builder();
+        //设置音频流的合适属性
+        attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);
+        builder.setAudioAttributes(attrBuilder.build());
+        mSoundPool = builder.build();
+
+        mMusicMap = new HashMap<>();
+        mMusicMap.put("hold", mSoundPool.load(this, R.raw.hold, 0));
+        mMusicMap.put("launch", mSoundPool.load(this, R.raw.launch, 0));
+        mMusicMap.put("merge", mSoundPool.load(this, R.raw.merge, 0));
+        mMusicMap.put("move", mSoundPool.load(this, R.raw.move, 0));
+        mSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                Log.e(TAG, "onLoadComplete: ");
+            }
+        });
+
+    }
+    private void initView(){
         TetrisAdapter tetrisAdapter = new TetrisAdapter(TetrisActivity.this, 11 * 6);
         mGvGame.setAdapter(tetrisAdapter);
+    }
+    private void initData(){
         mBlockViews = new BlockView[11][6];
         mHeight = new int[]{0, 0, 0, 0, 0, 0};
         mLinearInterpolator = new LinearInterpolator();
         mBlockViews = new BlockView[11][6];
         mBlockText = new String[11][6];
-        generateBlock();
-
     }
 
     private void generateBlock() {
+
         mCurrentBlockView = (BlockView) LayoutInflater.from(TetrisActivity.this)
                 .inflate(R.layout.view_block, mRvGame, false);
-        mCurrentBlockView.setText(String.format("%s", Math.random()));
+        int num = (int) (Math.random() * 10);
+        mCurrentBlockView.setText(String.format("%s", num));
         mRvGame.addView(mCurrentBlockView);
         mCurrentBlockView.bringToFront();
-        mCurrentBlockView.setRow(0).setColumn(3);
+        mCurrentBlockView.setRow(0).setColumn(3).setColor(ColorUtil.getColor());
         //到达顶部，游戏结束
         if (mCurrentBlockView.getRow() + 1 + mHeight[mCurrentBlockView.getColumn()] >= 11) {
             return;
@@ -158,6 +208,8 @@ public class TetrisActivity extends AppCompatActivity {
                 //没有左右滑动，且已经到达底部，记录方块并生成下一个方块
                 if (row + 1 + mHeight[col] >= 11) {
                     mHeight[col]++;
+                    mSoundPool.play(mMusicMap.get("launch"), mVolume, mVolume, 1, 0, 1);
+
                     mBlockViews[row][col] = mCurrentBlockView;
                     mBlockText[row][col] = String.valueOf(mCurrentBlockView.getText());
                     //测试
@@ -179,6 +231,7 @@ public class TetrisActivity extends AppCompatActivity {
     }
 
     private void horizonAnimation(final int nextCol) {
+        mSoundPool.play(mMusicMap.get("move"), mVolume, mVolume, 0, 0, 1);
 
         mCurrentBlockView.setColumn(nextCol);
         mObjectAnimator = ObjectAnimator.ofFloat(mCurrentBlockView, "translationX", DensityUtil.dip2px(this, (nextCol - 3) * 40));
@@ -198,6 +251,8 @@ public class TetrisActivity extends AppCompatActivity {
                 //左右滑动后，如果到底了就不再继续滑动
                 if (row + 1 + mHeight[col] >= 11) {
                     mHeight[col]++;
+                    mSoundPool.play(mMusicMap.get("launch"), mVolume, mVolume, 0, 0, 1);
+
                     mBlockViews[row][col] = mCurrentBlockView;
                     mBlockText[row][col] = String.valueOf(mCurrentBlockView.getText());
                     generateBlock();
@@ -235,6 +290,8 @@ public class TetrisActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(blockText) && !blockText.equals(blockView.getText())) {
                     //这里有个动画效果 弹起一下的滑动...
                     //如果方块上是空白的话才允许抖动
+                    mSoundPool.play(mMusicMap.get("merge"), mVolume, mVolume, 0, 0, 1);
+
                     int row = blockView.getRow();
                     int col = blockView.getColumn();
                     if (mBlockViews[row - 1][col] == null) {
@@ -251,8 +308,6 @@ public class TetrisActivity extends AppCompatActivity {
             shakeAnimation(shakeBlocks);
             return;
         }
-
-
         //不需要就直接下落
         dropBlocks();
 
@@ -279,8 +334,6 @@ public class TetrisActivity extends AppCompatActivity {
                 }
             }
         }
-
-
     }
 
 
@@ -331,15 +384,16 @@ public class TetrisActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                   //如果还有方块没有动画就继续
-                   if (!queue.isEmpty()){
-                       executeShakeAnimation(queue);
-                   }else {
-                       //如果所有的抖动了就开始下落
-                       dropBlocks();
-                   }
+                //如果还有方块没有动画就继续
+                if (!queue.isEmpty()) {
+                    executeShakeAnimation(queue);
+                } else {
+                    //如果所有的抖动了就开始下落
+                    dropBlocks();
+                }
             }
         });
     }
+
 
 }

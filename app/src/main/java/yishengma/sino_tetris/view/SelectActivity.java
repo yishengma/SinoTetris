@@ -1,13 +1,12 @@
-package yishengma.sino_tetris;
+package yishengma.sino_tetris.view;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import yishengma.sino_tetris.R;
 
 
 public class SelectActivity extends AppCompatActivity implements View.OnClickListener {

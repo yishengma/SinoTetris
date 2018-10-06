@@ -13,12 +13,13 @@
         android:orientation="vertical">
 
         <TextView
+            android:text="东"
             android:id="@+id/tv_hold_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
             android:background="@drawable/tips_background"
             android:gravity="center"
             android:paddingBottom="5dp"
@@ -88,12 +89,13 @@
         android:orientation="vertical">
 
         <TextView
+            android:text="东"
             android:id="@+id/tv_next_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
             android:background="@drawable/tips_background"
             android:gravity="center"
             android:paddingBottom="5dp"

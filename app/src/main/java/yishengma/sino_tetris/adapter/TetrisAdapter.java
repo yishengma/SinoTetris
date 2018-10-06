@@ -1,10 +1,12 @@
-package yishengma.sino_tetris;
+package yishengma.sino_tetris.adapter;
 
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import yishengma.sino_tetris.R;
 
 /**
  *
@@ -18,7 +20,7 @@ public class TetrisAdapter extends BaseAdapter {
 
 
 
-    TetrisAdapter(Context context, int count) {
+   public TetrisAdapter(Context context, int count) {
         mContext = context;
         mCount = count;
 

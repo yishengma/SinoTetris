@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<yishengma.bean.BlockView
+<yishengma.sino_tetris.bean.BlockView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/star_b"
-    android:layout_width="40dp"
-    android:layout_height="40dp"
-    android:layout_marginLeft="120dp"
-    android:layout_marginTop="0dp">
+    android:textSize="28sp"
+    android:gravity="center"
+    android:layout_width="37dp"
+    android:layout_height="37dp"
 
-</yishengma.bean.BlockView>
+    android:layout_marginLeft="121.5dp"
+    android:layout_marginTop="1.5dp">
+
+</yishengma.sino_tetris.bean.BlockView>

@@ -1,8 +1,11 @@
-package yishengma.bean;
+package yishengma.sino_tetris.bean;
 
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+
+import yishengma.sino_tetris.utils.DensityUtil;
 
 
 /**
@@ -14,6 +17,7 @@ public class BlockView extends android.support.v7.widget.AppCompatTextView {
 
     private int mRow;
     private int mColumn;
+    private Color mColor;
     public BlockView(Context context) {
         super(context);
     }
@@ -41,6 +45,19 @@ public class BlockView extends android.support.v7.widget.AppCompatTextView {
 
     public BlockView setColumn(int column) {
         mColumn = column;
+        return this;
+    }
+
+    public Color getColor() {
+        return mColor;
+    }
+
+    public BlockView setColor(Color color) {
+        mColor = color;
+        GradientDrawable gd = new GradientDrawable();//创建drawable
+        gd.setColor(android.graphics.Color.parseColor(color.getColor()));
+        gd.setCornerRadius(DensityUtil.dip2px(this.getContext(),5));
+        this.setBackground(gd);
         return this;
     }
 }

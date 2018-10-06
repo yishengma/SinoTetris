@@ -1,7 +1,6 @@
-package yishengma.utils;
+package yishengma.sino_tetris.utils;
 
 import android.content.res.Resources;
-import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -11,7 +10,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import yishengma.bean.Color;
+import yishengma.sino_tetris.bean.Color;
 
 
 /**
@@ -20,20 +19,42 @@ import yishengma.bean.Color;
  */
 
 public class ColorUtil {
-
+    private static ColorUtil sColorUtil;
     private static final String TAG = "ColorUtil";
+    private static List<Color> mAllColors;
 
-    public static void choseColor(Resources resources) {
-
+    private ColorUtil(Resources resources) {
         try {
-            List<Color> colors = pull2xml(resources.getAssets().open("colors.xml"));
-            for (Color c : colors) {
-                Log.e(TAG, "choseColor: " + c.getColor());
-
-            }
+            mAllColors = pull2xml(resources.getAssets().open("colors.xml"));
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    public static void init(Resources resources){
+        if (sColorUtil==null) {
+            sColorUtil = new ColorUtil(resources);
+
+        }
+    }
+
+
+    public static Color getColor(){
+        if (sColorUtil==null){
+            throw new NullPointerException("ColorUtil has not init! ");
+        }
+        int size = mAllColors.size();
+        int index = (int)(Math.random()*size);
+        Color color = mAllColors.get(index);
+        mAllColors.remove(color);
+        return color;
+    }
+    public static void recyclerColor(Color color){
+        if (sColorUtil==null){
+            throw new NullPointerException("ColorUtil has not init! ");
+        }
+        mAllColors.add(color);
     }
 
     private static List<Color> pull2xml(InputStream is) throws Exception {
