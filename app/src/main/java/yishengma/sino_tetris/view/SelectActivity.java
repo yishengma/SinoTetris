@@ -5,16 +5,20 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-
 import yishengma.sino_tetris.R;
 
 
+
 public class SelectActivity extends AppCompatActivity implements View.OnClickListener {
-    Button grade1,grade2,grade3,grade4, grade5;
+    Button grade1, grade2, grade3, grade4, grade5;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select);
+
+
         grade1 = (Button) findViewById(R.id.grade1);
         grade2 = (Button) findViewById(R.id.grade2);
         grade3 = (Button) findViewById(R.id.grade3);
@@ -30,7 +34,7 @@ public class SelectActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-        Intent intent = new Intent(SelectActivity.this,TetrisActivity.class);
+        Intent intent = new Intent(SelectActivity.this, TetrisActivity.class);
         startActivity(intent);
     }
 }

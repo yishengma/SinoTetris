@@ -1,10 +1,11 @@
-package yishengma.sino_tetris.bean;
+package yishengma.sino_tetris.widget;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 
+import yishengma.sino_tetris.bean.Color;
 import yishengma.sino_tetris.utils.DensityUtil;
 
 

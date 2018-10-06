@@ -3,20 +3,13 @@ package yishengma.sino_tetris.view;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-
 import android.animation.ValueAnimator;
-
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
-
 import android.os.Bundle;
-
-
 import android.support.v7.app.AppCompatActivity;
-
 import android.text.TextUtils;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,20 +19,23 @@ import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
-
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import yishengma.sino_tetris.R;
-import yishengma.sino_tetris.bean.BlockView;
 import yishengma.sino_tetris.adapter.TetrisAdapter;
+import yishengma.sino_tetris.bean.Color;
+import yishengma.sino_tetris.bean.Gap;
 import yishengma.sino_tetris.utils.ColorUtil;
 import yishengma.sino_tetris.utils.DensityUtil;
+import yishengma.sino_tetris.widget.BlockView;
+import yishengma.sino_tetris.widget.DrawRelativeLayout;
 
 
 public class TetrisActivity extends AppCompatActivity {
@@ -63,6 +59,8 @@ public class TetrisActivity extends AppCompatActivity {
     Button mBtnRight;
     @BindView(R.id.rv_game)
     RelativeLayout mRvGame;
+    @BindView(R.id.drv_game)
+    DrawRelativeLayout mDrvGame;
     private int[] mHeight;
     private BlockView mCurrentBlockView;
     private BlockView[][] mBlockViews;
@@ -86,7 +84,6 @@ public class TetrisActivity extends AppCompatActivity {
     }
 
 
-
     private void init() {
         initSoundPool();
         initView();
@@ -95,6 +92,7 @@ public class TetrisActivity extends AppCompatActivity {
         generateBlock();
 
     }
+
     private void initSoundPool() {
         AudioManager manager = (AudioManager) this.getSystemService(AUDIO_SERVICE);
         if (manager != null) {
@@ -125,11 +123,13 @@ public class TetrisActivity extends AppCompatActivity {
         });
 
     }
-    private void initView(){
+
+    private void initView() {
         TetrisAdapter tetrisAdapter = new TetrisAdapter(TetrisActivity.this, 11 * 6);
         mGvGame.setAdapter(tetrisAdapter);
     }
-    private void initData(){
+
+    private void initData() {
         mBlockViews = new BlockView[11][6];
         mHeight = new int[]{0, 0, 0, 0, 0, 0};
         mLinearInterpolator = new LinearInterpolator();
@@ -213,8 +213,9 @@ public class TetrisActivity extends AppCompatActivity {
                     mBlockViews[row][col] = mCurrentBlockView;
                     mBlockText[row][col] = String.valueOf(mCurrentBlockView.getText());
                     //测试
-                    if (mHeight[col] > 5) {
-                        removeView();
+                    if (mHeight[col] > 3) {
+                        //removeView();
+                        merge();
                         return;
                     }
 
@@ -266,20 +267,50 @@ public class TetrisActivity extends AppCompatActivity {
         mObjectAnimator.start();
     }
 
+    private void merge() {
+
+        List<Gap> gaps = new ArrayList<>();
+        Color color = ColorUtil.getColor();
+        ColorUtil.recyclerColor(mBlockViews[9][2].getColor());
+        ColorUtil.recyclerColor(mBlockViews[9][1].getColor());
+        ColorUtil.recyclerColor(mBlockViews[10][2].getColor());
+
+        Gap gap = new Gap(color, false, mBlockViews[9][1], mBlockViews[9][2], this);
+        Gap gap1 = new Gap(color, true, mBlockViews[9][2], mBlockViews[10][2], this);
+        mBlockViews[9][1].setColor(color);
+        mBlockViews[9][2].setColor(color);
+        mBlockViews[10][2].setColor(color);
+
+        gaps.add(gap);
+        gaps.add(gap1);
+
+        mDrvGame.bringToFront();
+        mDrvGame.update(gaps);
+
+
+       mergeAnimation();
+    }
+
 
     private void removeView() {
         mBlockText[9][1] = "";
         mBlockText[10][2] = "";
         mBlockText[9][2] = "都";
+
+
         boolean isShake = false;
         boolean[][] shakeBlocks = new boolean[11][6];
         for (int i = 0; i < 6; i++) {
             for (int j = 10; j > -1; j--) {
                 BlockView blockView = mBlockViews[j][i];
+
                 String blockText = mBlockText[j][i];
                 if (blockView == null) {
                     continue;
                 }
+
+
+                //移除被合并的 View
                 if (TextUtils.isEmpty(blockText)) {
                     mHeight[blockView.getColumn()]--;
                     mRvGame.removeView(blockView);
@@ -287,11 +318,11 @@ public class TetrisActivity extends AppCompatActivity {
 
                 }
 
+
                 if (!TextUtils.isEmpty(blockText) && !blockText.equals(blockView.getText())) {
                     //这里有个动画效果 弹起一下的滑动...
                     //如果方块上是空白的话才允许抖动
                     mSoundPool.play(mMusicMap.get("merge"), mVolume, mVolume, 0, 0, 1);
-
                     int row = blockView.getRow();
                     int col = blockView.getColumn();
                     if (mBlockViews[row - 1][col] == null) {
@@ -303,6 +334,7 @@ public class TetrisActivity extends AppCompatActivity {
 
             }
         }
+
         //是否需要抖动，需要就先抖动再下滑
         if (isShake) {
             shakeAnimation(shakeBlocks);
@@ -336,6 +368,22 @@ public class TetrisActivity extends AppCompatActivity {
         }
     }
 
+    private void mergeAnimation() {
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mGvGame, "alpha", 1.0f, 1.0f);
+        animator.setDuration(400);
+        animator.setRepeatCount(0);
+        animator.setInterpolator(mLinearInterpolator);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mDrvGame.restore();
+                removeView();
+            }
+        });
+
+        animator.start();
+    }
 
     private void directlyDropAnimation(final BlockView view, final int targetRow) {
         view.setRow(view.getRow() + 1);

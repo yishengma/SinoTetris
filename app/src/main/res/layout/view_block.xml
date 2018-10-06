@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<yishengma.sino_tetris.bean.BlockView
+<yishengma.sino_tetris.widget.BlockView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:textSize="28sp"
     android:gravity="center"
@@ -9,4 +9,4 @@
     android:layout_marginLeft="121.5dp"
     android:layout_marginTop="1.5dp">
 
-</yishengma.sino_tetris.bean.BlockView>
+</yishengma.sino_tetris.widget.BlockView>
