@@ -1,4 +1,4 @@
-package yishengma.sino_tetris.view;
+package yishengma.sino_tetris.ui;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,6 +62,12 @@ public class TetrisActivity extends AppCompatActivity {
     RelativeLayout mRvGame;
     @BindView(R.id.drv_game)
     DrawRelativeLayout mDrvGame;
+    @BindView(R.id.btn_pause)
+    Button mBtnPause;
+    @BindView(R.id.btn_drop)
+    Button mBtnDrop;
+
+
     private int[] mHeight;
     private BlockView mCurrentBlockView;
     private BlockView[][] mBlockViews;
@@ -71,7 +78,12 @@ public class TetrisActivity extends AppCompatActivity {
     private ObjectAnimator mObjectAnimator;
     private SoundPool mSoundPool;
     private HashMap<String, Integer> mMusicMap;
+    private boolean mIsDropMove;
     private float mVolume;
+    private TetrisDialogFragment mDialogFragment;
+    private int mNext; // 下一个方
+    private boolean mIsCanHold;
+
 
 
     @Override
@@ -89,7 +101,9 @@ public class TetrisActivity extends AppCompatActivity {
         initView();
         initData();
         ColorUtil.init(getResources());
-        generateBlock();
+        initDialog();
+        showDialog("开始游戏");
+
 
     }
 
@@ -135,14 +149,20 @@ public class TetrisActivity extends AppCompatActivity {
         mLinearInterpolator = new LinearInterpolator();
         mBlockViews = new BlockView[11][6];
         mBlockText = new String[11][6];
+        mNext = (int) (Math.random() * 10);
+
     }
 
     private void generateBlock() {
 
         mCurrentBlockView = (BlockView) LayoutInflater.from(TetrisActivity.this)
                 .inflate(R.layout.view_block, mRvGame, false);
-        int num = (int) (Math.random() * 10);
-        mCurrentBlockView.setText(String.format("%s", num));
+
+        mCurrentBlockView.setText(String.format("%s", mNext));
+        mNext = (int) (Math.random() * 10);
+        mTvNextText.setText(String.format("%s", mNext));
+
+
         mRvGame.addView(mCurrentBlockView);
         mCurrentBlockView.bringToFront();
         mCurrentBlockView.setRow(0).setColumn(3).setColor(ColorUtil.getColor());
@@ -150,11 +170,14 @@ public class TetrisActivity extends AppCompatActivity {
         if (mCurrentBlockView.getRow() + 1 + mHeight[mCurrentBlockView.getColumn()] >= 11) {
             return;
         }
+        mIsDropMove = false;
+        mBtnDrop.setEnabled(true);
+        mIsCanHold = true;
         verticalAnimation();
 
     }
 
-    @OnClick({R.id.btn_left, R.id.btn_right})
+    @OnClick({R.id.btn_left, R.id.btn_right, R.id.btn_drop, R.id.btn_pause, R.id.tv_hold_text, R.id.tv_hold_tips})
     public void onViewClicked(View view) {
         int row = mCurrentBlockView.getRow();
         int col = mCurrentBlockView.getColumn();
@@ -175,6 +198,39 @@ public class TetrisActivity extends AppCompatActivity {
                     mBtnLeft.setEnabled(false);
                     mBtnRight.setEnabled(false);
                 }
+                break;
+            case R.id.btn_drop:
+                if (mBtnDrop.isEnabled()) {
+                    mIsDropMove = true;
+                    mBtnDrop.setEnabled(false);
+                }
+                break;
+            case R.id.btn_pause:
+                if (mObjectAnimator != null && !mObjectAnimator.isPaused()) {
+                    mObjectAnimator.pause();
+                    mBtnPause.setText(R.string.go_on);
+                    showDialog("继续游戏");
+                    return;
+                }
+
+                break;
+            case R.id.tv_hold_text:
+            case R.id.tv_hold_tips:
+                Log.e(TAG, "onViewClicked: " );
+                 if (!mIsCanHold){
+                     return;
+                 }
+                 if (TextUtils.isEmpty(mTvHoldText.getText())){
+                     mTvHoldText.setText(mCurrentBlockView.getText());
+                     mCurrentBlockView.setText(String.format("%s", mNext));
+                     mNext = (int) (Math.random() * 10);
+                     mTvNextText.setText(String.format("%s", mNext));
+                 }else {
+                     CharSequence charSequence =  mCurrentBlockView.getText();
+                     mCurrentBlockView.setText(mTvHoldText.getText());
+                     mTvHoldText.setText(charSequence);
+
+                 }
                 break;
         }
     }
@@ -205,16 +261,19 @@ public class TetrisActivity extends AppCompatActivity {
                     return;
                 }
 
+
                 //没有左右滑动，且已经到达底部，记录方块并生成下一个方块
                 if (row + 1 + mHeight[col] >= 11) {
                     mHeight[col]++;
-                    mSoundPool.play(mMusicMap.get("launch"), mVolume, mVolume, 1, 0, 1);
+                    mIsCanHold = false; //表示不能替换
 
+                    mSoundPool.play(mMusicMap.get("launch"), mVolume, mVolume, 1, 0, 1);
+                    Log.e(TAG, "onAnimationEnd: " + row + "  " + col);
                     mBlockViews[row][col] = mCurrentBlockView;
                     mBlockText[row][col] = String.valueOf(mCurrentBlockView.getText());
                     //测试
                     if (mHeight[col] > 3) {
-                        //removeView();
+
                         merge();
                         return;
                     }
@@ -222,7 +281,11 @@ public class TetrisActivity extends AppCompatActivity {
                     generateBlock();
                     return;
                 }
-
+                //快速下落
+                if (mIsDropMove) {
+                    dropAnimation();
+                    return;
+                }
                 //没有任何操作，直接再次下滑
                 verticalAnimation();
             }
@@ -233,7 +296,6 @@ public class TetrisActivity extends AppCompatActivity {
 
     private void horizonAnimation(final int nextCol) {
         mSoundPool.play(mMusicMap.get("move"), mVolume, mVolume, 0, 0, 1);
-
         mCurrentBlockView.setColumn(nextCol);
         mObjectAnimator = ObjectAnimator.ofFloat(mCurrentBlockView, "translationX", DensityUtil.dip2px(this, (nextCol - 3) * 40));
         mObjectAnimator.setDuration(300);
@@ -251,12 +313,17 @@ public class TetrisActivity extends AppCompatActivity {
                 mCurrentBlockView.setLayerType(View.LAYER_TYPE_NONE, null);
                 //左右滑动后，如果到底了就不再继续滑动
                 if (row + 1 + mHeight[col] >= 11) {
+                    mIsCanHold = false; //表示不能替换
                     mHeight[col]++;
                     mSoundPool.play(mMusicMap.get("launch"), mVolume, mVolume, 0, 0, 1);
-
+                    Log.e(TAG, "onAnimationEnd: " + row + "  " + col);
                     mBlockViews[row][col] = mCurrentBlockView;
                     mBlockText[row][col] = String.valueOf(mCurrentBlockView.getText());
                     generateBlock();
+                    return;
+                }
+                if (mIsDropMove) {
+                    dropAnimation();
                     return;
                 }
                 //没有到底就继续下落
@@ -267,8 +334,46 @@ public class TetrisActivity extends AppCompatActivity {
         mObjectAnimator.start();
     }
 
-    private void merge() {
+    private void dropAnimation() {
+        int height = 10 - mHeight[mCurrentBlockView.getColumn()] - mCurrentBlockView.getRow(); //需要下落的高度
+        mCurrentBlockView.setRow(height + mCurrentBlockView.getRow());//设置到底
+        mCurrentBlockView.setLayerType(View.LAYER_TYPE_HARDWARE, null); //硬件加速
+        mObjectAnimator = ObjectAnimator.ofFloat(mCurrentBlockView, "translationY", DensityUtil.dip2px(this, (mCurrentBlockView.getRow()) * 40));
+        mObjectAnimator.setDuration(500);
+        mObjectAnimator.setRepeatCount(0);
+        mObjectAnimator.setInterpolator(mLinearInterpolator);
+        mObjectAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                int row = mCurrentBlockView.getRow();
+                int col = mCurrentBlockView.getColumn();
+                mCurrentBlockView.setLayerType(View.LAYER_TYPE_NONE, null);
+                //已经到达底部，记录方块并生成下一个方块
+                if (row + 1 + mHeight[col] >= 11) {
+                    mIsCanHold = false; //表示不能替换
+                    mHeight[col]++;
+                    Log.e(TAG, "onAnimationEnd: " + Arrays.toString(mHeight));
+                    mSoundPool.play(mMusicMap.get("launch"), mVolume, mVolume, 1, 0, 1);
+                    Log.e(TAG, "onAnimationEnd: " + row + "  " + col);
+                    mBlockViews[row][col] = mCurrentBlockView;
+                    mBlockText[row][col] = String.valueOf(mCurrentBlockView.getText());
+                    //测试
+                    if (mHeight[col] > 3) {
+                        //removeView();
+                        merge();
+                        return;
+                    }
 
+                    generateBlock();
+
+                }
+            }
+        });
+        mObjectAnimator.start();
+    }
+
+    private void merge() {
         List<Gap> gaps = new ArrayList<>();
         Color color = ColorUtil.getColor();
         ColorUtil.recyclerColor(mBlockViews[9][2].getColor());
@@ -288,7 +393,7 @@ public class TetrisActivity extends AppCompatActivity {
         mDrvGame.update(gaps);
 
 
-       mergeAnimation();
+        mergeAnimation();
     }
 
 
@@ -343,6 +448,7 @@ public class TetrisActivity extends AppCompatActivity {
         //不需要就直接下落
         dropBlocks();
 
+
     }
 
     private void dropBlocks() {
@@ -354,7 +460,6 @@ public class TetrisActivity extends AppCompatActivity {
                     height++; //最后的方块都会null ,所以dropHeight都为默认值 0
                 } else {
                     dropHeight[j][i] = height;
-
                 }
             }
         }
@@ -369,11 +474,11 @@ public class TetrisActivity extends AppCompatActivity {
     }
 
     private void mergeAnimation() {
-        ObjectAnimator animator = ObjectAnimator.ofFloat(mGvGame, "alpha", 1.0f, 1.0f);
-        animator.setDuration(400);
-        animator.setRepeatCount(0);
-        animator.setInterpolator(mLinearInterpolator);
-        animator.addListener(new AnimatorListenerAdapter() {
+        mObjectAnimator = ObjectAnimator.ofFloat(mGvGame, "alpha", 1.0f, 1.0f);
+        mObjectAnimator.setDuration(400);
+        mObjectAnimator.setRepeatCount(0);
+        mObjectAnimator.setInterpolator(mLinearInterpolator);
+        mObjectAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
@@ -382,26 +487,32 @@ public class TetrisActivity extends AppCompatActivity {
             }
         });
 
-        animator.start();
+        mObjectAnimator.start();
     }
 
     private void directlyDropAnimation(final BlockView view, final int targetRow) {
         view.setRow(view.getRow() + 1);
-        ObjectAnimator animator = ObjectAnimator.ofFloat(view
+        mObjectAnimator = ObjectAnimator.ofFloat(view
                 , "translationY", DensityUtil.dip2px(this, (view.getRow()) * 40));
-        animator.setDuration(500);
-        animator.setRepeatCount(0);
-        animator.setInterpolator(mLinearInterpolator);
-        animator.addListener(new AnimatorListenerAdapter() {
+        mObjectAnimator.setDuration(500);
+        mObjectAnimator.setRepeatCount(0);
+        mObjectAnimator.setInterpolator(mLinearInterpolator);
+        mObjectAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 if (view.getRow() != targetRow) {
                     directlyDropAnimation(view, targetRow);
+                } else {
+                    int row = view.getRow();
+                    int col = view.getColumn();
+                    mBlockViews[row][col] = view;
+                    mBlockText[row][col] = String.valueOf(view.getText());
+                    generateBlock();
                 }
             }
         });
-        animator.start();
+        mObjectAnimator.start();
     }
 
     private void shakeAnimation(boolean[][] shakeBlock) {
@@ -422,13 +533,13 @@ public class TetrisActivity extends AppCompatActivity {
 
     private void executeShakeAnimation(final Queue queue) {
 
-        ObjectAnimator animator = (ObjectAnimator) queue.poll();
-        animator.setDuration(250);
-        animator.setRepeatCount(1);
-        animator.setRepeatMode(ValueAnimator.REVERSE);
-        animator.setInterpolator(mLinearInterpolator);
-        animator.start();
-        animator.addListener(new AnimatorListenerAdapter() {
+        mObjectAnimator = (ObjectAnimator) queue.poll();
+        mObjectAnimator.setDuration(250);
+        mObjectAnimator.setRepeatCount(1);
+        mObjectAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        mObjectAnimator.setInterpolator(mLinearInterpolator);
+        mObjectAnimator.start();
+        mObjectAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
@@ -441,6 +552,34 @@ public class TetrisActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void initDialog() {
+        mDialogFragment = new TetrisDialogFragment();
+        mDialogFragment.setOnClickListener(new TetrisDialogFragment.OnClickListener() {
+            @Override
+            public void onClick(String s) {
+                switch (s) {
+                    case "开始游戏":
+                        generateBlock();
+                        mDialogFragment.dismiss();
+                        break;
+                    case "继续游戏":
+                        if (mObjectAnimator != null && mObjectAnimator.isPaused()) {
+                            mObjectAnimator.resume();
+                            mBtnPause.setText(R.string.pause);
+                        }
+                        mDialogFragment.dismiss();
+                        break;
+
+                }
+            }
+        });
+    }
+
+    private void showDialog(String s) {
+        mDialogFragment.setOperate(s);
+        mDialogFragment.show(getSupportFragmentManager(), "dialog");
     }
 
 

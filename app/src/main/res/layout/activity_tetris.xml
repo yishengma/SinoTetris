@@ -23,9 +23,9 @@
             android:gravity="center"
             android:paddingBottom="5dp"
             android:paddingTop="5dp"
-            android:text="东"
             android:textSize="25sp"
-            tools:text="东" />
+            android:textColor="@color/colorWhite"
+            />
 
         <TextView
             android:id="@+id/tv_hold_tips"
@@ -38,7 +38,15 @@
             android:textStyle="bold" />
 
         <Button
+            android:text="@string/left"
             android:id="@+id/btn_left"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+
+            android:text="@string/pause"
+            android:id="@+id/btn_pause"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
@@ -124,7 +132,15 @@
             android:textStyle="bold" />
 
         <Button
+            android:text="@string/right"
             android:id="@+id/btn_right"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+
+            android:text="@string/drop"
+            android:id="@+id/btn_drop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>

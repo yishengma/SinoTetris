@@ -1,4 +1,4 @@
-package yishengma.sino_tetris.view;
+package yishengma.sino_tetris.ui;
 
 import android.content.Intent;
 import android.os.Bundle;

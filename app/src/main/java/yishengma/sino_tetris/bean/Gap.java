@@ -9,6 +9,7 @@ import yishengma.sino_tetris.utils.DensityUtil;
 import yishengma.sino_tetris.widget.BlockView;
 
 /**
+ * 两个
  * Created by PirateHat on 18-10-6.
  */
 
@@ -53,8 +54,6 @@ public class Gap {
         }
 
 
-        Log.e(TAG, "Gap: "+ Arrays.toString(mX));
-        Log.e(TAG, "Gap: "+ Arrays.toString(mY));
     }
 
     public float[] getX() {
