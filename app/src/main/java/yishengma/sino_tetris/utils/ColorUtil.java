@@ -14,7 +14,6 @@ import yishengma.sino_tetris.bean.Color;
 
 
 /**
- *
  * Created by PirateHat on 18-10-5.
  */
 
@@ -32,27 +31,31 @@ public class ColorUtil {
     }
 
 
-    public static void init(Resources resources){
-        if (sColorUtil==null) {
+    public static void init(Resources resources) {
+        if (sColorUtil == null) {
             sColorUtil = new ColorUtil(resources);
 
         }
     }
 
 
-    public static Color getColor(){
-        if (sColorUtil==null){
+    public static Color getColor() {
+        if (sColorUtil == null) {
             throw new NullPointerException("ColorUtil has not init! ");
         }
         int size = mAllColors.size();
-        int index = (int)(Math.random()*size);
+        int index = (int) (Math.random() * size);
         Color color = mAllColors.get(index);
         mAllColors.remove(color);
         return color;
     }
-    public static void recyclerColor(Color color){
-        if (sColorUtil==null){
+
+    public static void recyclerColor(Color color) {
+        if (sColorUtil == null) {
             throw new NullPointerException("ColorUtil has not init! ");
+        }
+        if (mAllColors.contains(color)) {
+            return;
         }
         mAllColors.add(color);
     }
@@ -73,10 +76,10 @@ public class ColorUtil {
                 case XmlPullParser.START_TAG:
                     if ("colors".equals(parser.getName())) {
                         list = new ArrayList<>();
-                    }else if ("color".equals(parser.getName())) {
+                    } else if ("color".equals(parser.getName())) {
 
                         //获取name属性
-                        String name = parser.getAttributeValue(null,"name");
+                        String name = parser.getAttributeValue(null, "name");
                         color.setName(name);
                         //colorStr
                         String colorStr = parser.nextText();

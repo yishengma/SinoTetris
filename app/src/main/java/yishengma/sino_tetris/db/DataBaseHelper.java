@@ -13,14 +13,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String WORLD_DOWN_CENTER_UP = "create table down_center_up(" +
             "id integer primary key autoincrement, " +
             "down text," +
-            "center text" +
+            "center text," +
             "up text," +
             "result text)";
-    private static final String WORLD_DOWN_UP_RIGHT = "create table down_up_left(" +
+    private static final String WORLD_DOWN_UP_RIGHT = "create table down_up_right(" +
             "id integer primary key autoincrement, " +
             "down text," +
             "up text," +
-            "left text," +
+            "right text," +
             "result text)";
     private static final String WORLD_DOWN_UP = "create table down_up(" +
             "id integer primary key autoincrement, " +
@@ -30,7 +30,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String WORLD_LEFT_CENTER_RIGHT = "create table left_center_right(" +
             "id integer primary key autoincrement, " +
             "left text," +
-            "center text" +
+            "center text," +
             "right text," +
             "result text)";
     private static final String WORLD_LEFT_DOWN_UP = "create table left_down_up(" +
@@ -46,6 +46,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             "right text," +
             "result text)";
 
+    private static final String WORLD_DOWN_UP_LEFT = "create table down_up_left(" +
+            "id integer primary key autoincrement, " +
+            "down text," +
+            "up text," +
+            "left text," +
+            "result text)";
+
+    private static final String WORLD_RIGHT_DOWN_UP = "create table right_down_up(" +
+            "id integer primary key autoincrement, " +
+            "right text," +
+            "down text," +
+            "up text," +
+            "result text)";
+
     public DataBaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
@@ -58,6 +72,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL(WORLD_LEFT_CENTER_RIGHT);
         db.execSQL(WORLD_LEFT_DOWN_UP);
         db.execSQL(WORLD_LEFT_RIGHT);
+        db.execSQL(WORLD_DOWN_UP_LEFT);
+        db.execSQL(WORLD_RIGHT_DOWN_UP);
     }
 
     @Override

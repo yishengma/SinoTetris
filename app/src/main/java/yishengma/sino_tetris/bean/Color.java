@@ -1,6 +1,7 @@
 package yishengma.sino_tetris.bean;
 
 /**
+ *
  * Created by PirateHat on 18-10-5.
  */
 
