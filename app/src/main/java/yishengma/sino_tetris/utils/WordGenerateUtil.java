@@ -20,21 +20,21 @@ public class WordGenerateUtil {
 
     private WordGenerateUtil() {
         list = new ArrayList<>();
-//        list.add("水");
+        list.add("水");
         list.add("月");
         list.add("木");
         list.add("山");
-//        list.add("虫");
-//        list.add("工");
-//        list.add("口");
-//        list.add("金");
-//        list.add("白");
-//        list.add("巾");
-//        list.add("一");
-//        list.add("二");
-//        list.add("小");
-//        list.add("大");
-//        list.add("十");
+        list.add("虫");
+        list.add("工");
+        list.add("口");
+        list.add("金");
+        list.add("白");
+        list.add("巾");
+        list.add("一");
+        list.add("二");
+        list.add("小");
+        list.add("大");
+        list.add("十");
 
 
 

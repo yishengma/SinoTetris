@@ -3,145 +3,173 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:orientation="vertical">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
+
+    </android.support.design.widget.AppBarLayout>
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/touch_outside"
+        android:focusable="true"
+        android:clickable="true"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@color/colorBlue"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/tv_hold_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/tips_background"
-            android:gravity="center"
-            android:paddingBottom="5dp"
-            android:paddingTop="5dp"
-            android:textSize="25sp"
-            android:textColor="@color/colorWhite"
-            />
-
-        <TextView
-            android:id="@+id/tv_hold_tips"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/hold"
-            android:textColor="@color/colorWhite"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-        <Button
-            android:text="@string/left"
-            android:id="@+id/btn_left"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <Button
-
-            android:text="@string/pause"
-            android:id="@+id/btn_pause"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="240dp"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/colorBlue"
+            android:orientation="vertical">
 
-            android:id="@+id/rv_game"
-            android:layout_width="match_parent"
-            android:layout_height="440dp">
-
-            <yishengma.sino_tetris.widget.DrawRelativeLayout
-
-                android:id="@+id/drv_game"
+            <TextView
+                android:id="@+id/tv_hold_text"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/tips_background"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:textColor="@color/colorWhite"
+                android:textSize="25sp" />
 
-            </yishengma.sino_tetris.widget.DrawRelativeLayout>
-
-            <GridView
-                android:id="@+id/gv_game"
+            <TextView
+                android:layout_below="@+id/tv_hold_text"
+                android:id="@+id/tv_hold_tips"
                 android:layout_width="match_parent"
-                android:layout_height="440dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:numColumns="6">
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/hold"
+                android:textColor="@color/colorWhite"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
-            </GridView>
+
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/tv_score"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@color/colorBlue"
-            android:gravity="center"
-            android:textColor="@color/colorWhite"
-            android:textSize="30sp"
-            tools:text="0 0 0 0 0" />
-
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="240dp"
             android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:clickable="true"
+                android:focusable="true"
+                android:id="@+id/rv_game"
+                android:layout_width="match_parent"
+                android:layout_height="440dp">
+
+                <yishengma.sino_tetris.widget.DrawRelativeLayout
+                    android:id="@+id/drv_game"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                  >
+
+                </yishengma.sino_tetris.widget.DrawRelativeLayout>
+
+                <GridView
+                    android:id="@+id/gv_game"
+                    android:layout_width="match_parent"
+                    android:layout_height="440dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:background="@color/colorWhite"
+                    android:numColumns="6">
+
+                </GridView>
+            </RelativeLayout>
+
+          <RelativeLayout
+              android:background="@color/colorBlue"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+              <ImageButton
+                  android:background="@color/colorBlue"
+                  android:scaleType="centerCrop"
+                  android:layout_alignParentBottom="true"
+                  android:src="@drawable/btn_drop"
+                  android:id="@+id/btn_drop"
+                  android:layout_width="60dp"
+                  android:layout_centerHorizontal="true"
+                  android:layout_height="60dp" />
+              <ImageButton
+                  android:background="@color/colorBlue"
+                  android:scaleType="centerCrop"
+                  android:layout_centerVertical="true"
+                  android:layout_alignParentStart="true"
+                  android:src="@drawable/btn_left"
+                  android:id="@+id/btn_left"
+                  android:layout_width="60dp"
+                  android:layout_height="60dp" />
+              <ImageButton
+                  android:scaleType="centerCrop"
+
+                  android:background="@color/colorBlue"
+                  android:layout_centerVertical="true"
+                  android:layout_alignParentEnd="true"
+                  android:src="@drawable/btn_right"
+                  android:id="@+id/btn_right"
+                  android:layout_width="60dp"
+                  android:layout_height="60dp" />
+              <TextView
+                  android:layout_centerHorizontal="true"
+                  android:id="@+id/tv_score"
+                  android:layout_width="wrap_content"
+                  android:layout_height="40dp"
+                  android:background="@color/colorBlue"
+                  android:gravity="center"
+                  android:textColor="@color/colorWhite"
+                  android:textSize="30sp"
+                  tools:text="0 0 0 0 0" />
+
+          </RelativeLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:background="@color/colorBlue"
-            android:gravity="center"
-            android:text="@string/score"
-            android:textColor="@color/colorWhite" />
-    </LinearLayout>
+            android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@color/colorBlue"
-        android:orientation="vertical">
+            <TextView
+                android:id="@+id/tv_next_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/tips_background"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:text="东"
+                android:textSize="25sp"
+                tools:text="东" />
 
-        <TextView
-            android:id="@+id/tv_next_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/tips_background"
-            android:gravity="center"
-            android:paddingBottom="5dp"
-            android:paddingTop="5dp"
-            android:text="东"
-            android:textSize="25sp"
-            tools:text="东" />
+            <TextView
+                android:layout_below="@+id/tv_next_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/next"
+                android:textColor="@color/colorWhite"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/next"
-            android:textColor="@color/colorWhite"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-        <Button
-            android:text="@string/right"
-            android:id="@+id/btn_right"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <Button
-
-            android:text="@string/drop"
-            android:id="@+id/btn_drop"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        </RelativeLayout>
     </LinearLayout>
 </LinearLayout>

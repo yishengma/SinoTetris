@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
 import java.util.List;
@@ -22,6 +24,7 @@ public class DrawRelativeLayout extends RelativeLayout {
     private Paint mPaint;
     private List<Gap> mGaps;
     private boolean mIsDraw;
+
 
     public DrawRelativeLayout(Context context) {
         this(context, null);
@@ -68,8 +71,8 @@ public class DrawRelativeLayout extends RelativeLayout {
 
     private void drawPath(Canvas canvas, Color color, float[] x, float y[]) {
 
-        float controlX = (x[2] + x[0])/2;
-        float controlY = (y[3] + y[1])/2;
+        float controlX = (x[2] + x[0]) / 2;
+        float controlY = (y[3] + y[1]) / 2;
 
         mPaint.setColor(android.graphics.Color.parseColor(color.getColor()));
         Path mPath = new Path();
@@ -83,4 +86,7 @@ public class DrawRelativeLayout extends RelativeLayout {
         mPath.close();
         canvas.drawPath(mPath, mPaint);
     }
+
+
+
 }

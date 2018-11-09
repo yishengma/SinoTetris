@@ -8,28 +8,39 @@
     android:theme="@style/NormalDialogStyle"
     tools:context="yishengma.sino_tetris.ui.TetrisActivity">
 
-    <ImageView
-        android:id="@+id/imv_title"
-        android:layout_centerInParent="true"
-        android:src="@drawable/imv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <Button
-        android:layout_marginTop="20dp"
-        android:background="@drawable/loading_background"
-        android:id="@+id/btn_operate"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/imv_title"
-        android:textColor="@color/colorBlue"
+    <TextView
+        android:id="@+id/tv_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
+        android:layout_above="@+id/imv_title"
+        android:background="@color/colorBlue"
+        android:gravity="center"
+        android:textColor="@color/colorWhite"
+        android:textSize="30sp"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:id="@+id/imv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:src="@drawable/imv_title" />
+
+    <Button
+        android:id="@+id/btn_operate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imv_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/loading_background"
         android:gravity="center"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:textStyle="bold"
-        android:text="@string/start_game" />
-
+        android:text="@string/start_game"
+        android:textColor="@color/colorBlue"
+        android:textSize="25sp"
+        android:textStyle="bold" />
 
 
 </RelativeLayout>

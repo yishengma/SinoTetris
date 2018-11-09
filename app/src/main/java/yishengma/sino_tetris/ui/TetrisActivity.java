@@ -8,18 +8,21 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
-import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +33,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import yishengma.sino_tetris.R;
 import yishengma.sino_tetris.adapter.TetrisAdapter;
-
 import yishengma.sino_tetris.bean.Gap;
 import yishengma.sino_tetris.utils.ColorUtil;
 import yishengma.sino_tetris.utils.DensityUtil;
@@ -55,18 +57,22 @@ public class TetrisActivity extends AppCompatActivity {
 
 
     private static final String TAG = "TetrisActivity";
-    @BindView(R.id.btn_left)
-    Button mBtnLeft;
-    @BindView(R.id.btn_right)
-    Button mBtnRight;
+
     @BindView(R.id.rv_game)
     RelativeLayout mRvGame;
     @BindView(R.id.drv_game)
     DrawRelativeLayout mDrvGame;
-    @BindView(R.id.btn_pause)
-    Button mBtnPause;
+
+    @BindView(R.id.tool_bar)
+    Toolbar mToolBar;
+    @BindView(R.id.appbar)
+    AppBarLayout mAppbar;
     @BindView(R.id.btn_drop)
-    Button mBtnDrop;
+    ImageButton mBtnDrop;
+    @BindView(R.id.btn_left)
+    ImageButton mBtnLeft;
+    @BindView(R.id.btn_right)
+    ImageButton mBtnRight;
 
 
     private int[] mHeight;
@@ -85,6 +91,7 @@ public class TetrisActivity extends AppCompatActivity {
     private String mNext; // 下一个方
     private boolean mIsCanHold;
     private int mTotalHeight;
+    private int mScore;
 
 
     @Override
@@ -106,6 +113,40 @@ public class TetrisActivity extends AppCompatActivity {
         showDialog("开始游戏");
 
 
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_pause:
+                if (mObjectAnimator != null && !mObjectAnimator.isPaused()) {
+                    mObjectAnimator.pause();
+                    showDialog("继续游戏");
+                }
+                break;
+
+
+        }
+        return false;
+
+    }
+
+    private void setScore(int size, boolean clear) {
+        if (clear) {
+            mScore = 0;
+        } else {
+            mScore += size * 10;
+        }
+
+        mTvScore.setText(String.valueOf(mScore));
     }
 
     private void initSoundPool() {
@@ -133,13 +174,15 @@ public class TetrisActivity extends AppCompatActivity {
         mSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-                Log.e(TAG, "onLoadComplete: ");
+
             }
         });
 
     }
 
     private void initView() {
+        setSupportActionBar(mToolBar);
+        mToolBar.setTitle("冲鸭");
         TetrisAdapter tetrisAdapter = new TetrisAdapter(TetrisActivity.this, 11 * 6);
         mGvGame.setAdapter(tetrisAdapter);
     }
@@ -148,10 +191,16 @@ public class TetrisActivity extends AppCompatActivity {
         mBlockViews = new BlockView[11][6];
         mHeight = new int[]{0, 0, 0, 0, 0, 0};
         mLinearInterpolator = new LinearInterpolator();
-        mBlockViews = new BlockView[11][6];
+
         mBlockText = new String[11][6];
         mNext = WordGenerateUtil.getInstance().getRandomWord();
-
+        mScore = 0;
+        mIsCanHold = false;
+        mIsDropMove = false;
+        mIsRightMove = false;
+        mIsLeftMove = false;
+        mBtnDrop.setEnabled(true);
+        setScore(0, true);
     }
 
     private void generateBlock() {
@@ -169,7 +218,21 @@ public class TetrisActivity extends AppCompatActivity {
         mCurrentBlockView.setRow(0).setColumn(3).setColor(ColorUtil.getColor());
         //到达顶部，游戏结束
         if (mCurrentBlockView.getRow() + 1 + mHeight[mCurrentBlockView.getColumn()] >= 11) {
-            Log.e(TAG, "generateBlock: ");
+            mDialogFragment.setScore(String.valueOf(mScore));
+
+            for (int i = 0; i < 6; i++) {
+                for (int j = 0; j < 11; j++) {
+                    if (mBlockViews[j][i]!=null){
+                        mRvGame.removeView(mBlockViews[j][i]);
+                        mBlockViews[j][i] = null;
+                    }
+
+                }
+            }
+            mRvGame.removeView(mCurrentBlockView);
+            initData();
+            showDialog("开始游戏");
+
             return;
         }
         mIsDropMove = false;
@@ -179,7 +242,7 @@ public class TetrisActivity extends AppCompatActivity {
 
     }
 
-    @OnClick({R.id.btn_left, R.id.btn_right, R.id.btn_drop, R.id.btn_pause, R.id.tv_hold_text, R.id.tv_hold_tips})
+    @OnClick({R.id.btn_left, R.id.btn_right, R.id.btn_drop,  R.id.tv_hold_text, R.id.tv_hold_tips})
     public void onViewClicked(View view) {
         int row = mCurrentBlockView.getRow();
         int col = mCurrentBlockView.getColumn();
@@ -206,15 +269,6 @@ public class TetrisActivity extends AppCompatActivity {
                     mIsDropMove = true;
                     mBtnDrop.setEnabled(false);
                 }
-                break;
-            case R.id.btn_pause:
-                if (mObjectAnimator != null && !mObjectAnimator.isPaused()) {
-                    mObjectAnimator.pause();
-                    mBtnPause.setText(R.string.go_on);
-                    showDialog("继续游戏");
-                    return;
-                }
-
                 break;
             case R.id.tv_hold_text:
             case R.id.tv_hold_tips:
@@ -276,7 +330,7 @@ public class TetrisActivity extends AppCompatActivity {
 
                     List<Gap> list = MatchUtil.getsINSTANCE(TetrisActivity.this).match(mBlockText, mBlockViews);
                     if (list.size() != 0) {
-                        //removeView();
+
                         merge(list);
                         return;
                     }
@@ -301,7 +355,7 @@ public class TetrisActivity extends AppCompatActivity {
         mSoundPool.play(mMusicMap.get("move"), mVolume, mVolume, 0, 0, 1);
         mCurrentBlockView.setColumn(nextCol);
         mObjectAnimator = ObjectAnimator.ofFloat(mCurrentBlockView, "translationX", DensityUtil.dip2px(this, (nextCol - 3) * 40));
-        mObjectAnimator.setDuration(300);
+        mObjectAnimator.setDuration(200);
         mObjectAnimator.setRepeatCount(0);
         mCurrentBlockView.setLayerType(View.LAYER_TYPE_HARDWARE, null); //硬件加速
         mObjectAnimator.setInterpolator(mLinearInterpolator);
@@ -393,6 +447,7 @@ public class TetrisActivity extends AppCompatActivity {
 
             mergeAnimation();
         }
+        setScore(gaps.size(), false);
 
 
     }
@@ -598,7 +653,7 @@ public class TetrisActivity extends AppCompatActivity {
                     case "继续游戏":
                         if (mObjectAnimator != null && mObjectAnimator.isPaused()) {
                             mObjectAnimator.resume();
-                            mBtnPause.setText(R.string.pause);
+
                         }
                         mDialogFragment.dismiss();
                         break;

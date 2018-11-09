@@ -23,16 +23,16 @@ public class App extends Application {
         super.onCreate();
         sContext = getApplicationContext();
 
-        //down$center$up();
+        down$center$up();
         down$up();
         right$down$up();
         left$down$up();
-//        down$up$right();
-//        left$center$right();
-//        left$down$up();
-//        left$right();
-//        down$up$left();
-//        right$down$up();
+        down$up$right();
+        left$center$right();
+        left$down$up();
+        left$right();
+        down$up$left();
+        right$down$up();
     }
 
     public static Context getsContext() {
@@ -58,48 +58,48 @@ public class App extends Application {
 
     private void down$up() {
         ContentValues contentValues = new ContentValues();
-//        contentValues.put("down", "口");
-//        contentValues.put("up", "十");
-//        contentValues.put("result", "古");
-//        DataBaseUtil.getInstance().insertData("down_up", contentValues);
-//        contentValues.clear();
-//
-//        contentValues.put("down", "木");
-//        contentValues.put("up", "口");
-//        contentValues.put("result", "呆");
-//        DataBaseUtil.getInstance().insertData("down_up", contentValues);
-//
-//        contentValues.clear();
-//        contentValues.put("down", "二");
-//        contentValues.put("up", "一");
-//        contentValues.put("result", "三");
-//        DataBaseUtil.getInstance().insertData("down_up", contentValues);
-//
-//        contentValues.clear();
-//        contentValues.put("down", "水");
-//        contentValues.put("up", "工");
-//        contentValues.put("result", "汞");
-//        DataBaseUtil.getInstance().insertData("down_up", contentValues);
-//
-//
-//        contentValues.clear();
-//        contentValues.put("down", "王");
-//        contentValues.put("up", "白");
-//        contentValues.put("result", "皇");
-//        DataBaseUtil.getInstance().insertData("down_up", contentValues);
-//
-//        contentValues.clear();
-//        contentValues.put("down", "一");
-//        contentValues.put("up", "白");
-//        contentValues.put("result", "百");
-//        DataBaseUtil.getInstance().insertData("down_up", contentValues);
-//
-//        contentValues.clear();
-//        contentValues.put("down", "小");
-//        contentValues.put("up", "二");
-//        contentValues.put("result", "示");
-//        DataBaseUtil.getInstance().insertData("down_up", contentValues);
-//        contentValues.clear();
+        contentValues.put("down", "口");
+        contentValues.put("up", "十");
+        contentValues.put("result", "古");
+        DataBaseUtil.getInstance().insertData("down_up", contentValues);
+        contentValues.clear();
+
+        contentValues.put("down", "木");
+        contentValues.put("up", "口");
+        contentValues.put("result", "呆");
+        DataBaseUtil.getInstance().insertData("down_up", contentValues);
+
+        contentValues.clear();
+        contentValues.put("down", "二");
+        contentValues.put("up", "一");
+        contentValues.put("result", "三");
+        DataBaseUtil.getInstance().insertData("down_up", contentValues);
+
+        contentValues.clear();
+        contentValues.put("down", "水");
+        contentValues.put("up", "工");
+        contentValues.put("result", "汞");
+        DataBaseUtil.getInstance().insertData("down_up", contentValues);
+
+
+        contentValues.clear();
+        contentValues.put("down", "王");
+        contentValues.put("up", "白");
+        contentValues.put("result", "皇");
+        DataBaseUtil.getInstance().insertData("down_up", contentValues);
+
+        contentValues.clear();
+        contentValues.put("down", "白");
+        contentValues.put("up", "一");
+        contentValues.put("result", "百");
+        DataBaseUtil.getInstance().insertData("down_up", contentValues);
+
+        contentValues.clear();
+        contentValues.put("down", "小");
+        contentValues.put("up", "二");
+        contentValues.put("result", "示");
+        DataBaseUtil.getInstance().insertData("down_up", contentValues);
+        contentValues.clear();
         contentValues.put("down", "朋");
         contentValues.put("up", "山");
         contentValues.put("result", "崩");
@@ -273,29 +273,29 @@ public class App extends Application {
         DataBaseUtil.getInstance().insertData("left_down_up", contentValues);
         contentValues.clear();
 
-//
-//        contentValues.put("left", "木");
-//        contentValues.put("down", "木");
-//        contentValues.put("up", "木");
-//        contentValues.put("result", "森");
-//        DataBaseUtil.getInstance().insertData("left_down_up", contentValues);
-//        contentValues.clear();
-//
-//
-//        contentValues.put("left", "虫");
-//        contentValues.put("down", "王");
-//        contentValues.put("up", "白");
-//        contentValues.put("result", "蝗");
-//        DataBaseUtil.getInstance().insertData("left_down_up", contentValues);
-//        contentValues.clear();
-//
-//
-//        contentValues.put("left", "金");
-//        contentValues.put("down", "巾");
-//        contentValues.put("up", "白");
-//        contentValues.put("result", "锦");
-//        DataBaseUtil.getInstance().insertData("left_down_up", contentValues);
-//        contentValues.clear();
+
+        contentValues.put("left", "木");
+        contentValues.put("down", "木");
+        contentValues.put("up", "木");
+        contentValues.put("result", "森");
+        DataBaseUtil.getInstance().insertData("left_down_up", contentValues);
+        contentValues.clear();
+
+
+        contentValues.put("left", "虫");
+        contentValues.put("down", "王");
+        contentValues.put("up", "白");
+        contentValues.put("result", "蝗");
+        DataBaseUtil.getInstance().insertData("left_down_up", contentValues);
+        contentValues.clear();
+
+
+        contentValues.put("left", "金");
+        contentValues.put("down", "巾");
+        contentValues.put("up", "白");
+        contentValues.put("result", "锦");
+        DataBaseUtil.getInstance().insertData("left_down_up", contentValues);
+        contentValues.clear();
 
 
     }
@@ -328,11 +328,11 @@ public class App extends Application {
         contentValues.clear();
 
 
-//        contentValues.put("right", "月");
-//        contentValues.put("down", "口");
-//        contentValues.put("up", "十");
-//        contentValues.put("result", "胡");
-//        DataBaseUtil.getInstance().insertData("right_down_up", contentValues);
+        contentValues.put("right", "月");
+        contentValues.put("down", "口");
+        contentValues.put("up", "十");
+        contentValues.put("result", "胡");
+        DataBaseUtil.getInstance().insertData("right_down_up", contentValues);
 
     }
 

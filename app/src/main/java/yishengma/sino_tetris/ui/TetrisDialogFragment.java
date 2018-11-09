@@ -1,13 +1,10 @@
 package yishengma.sino_tetris.ui;
 
-import android.app.Dialog;
-import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +12,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,9 +31,12 @@ public class TetrisDialogFragment extends DialogFragment {
     @BindView(R.id.btn_operate)
     Button mBtnOperate;
     Unbinder unbinder;
+    @BindView(R.id.tv_score)
+    TextView mTvScore;
     private String mButtonText;
 
     private OnClickListener mOnClickListener;
+    private String mScore;
 
     public void setOnClickListener(OnClickListener onClickListener) {
         mOnClickListener = onClickListener;
@@ -59,11 +60,16 @@ public class TetrisDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(
-                R.layout.fragment_dialog,container, false
+                R.layout.fragment_dialog, container, false
         );
 
         unbinder = ButterKnife.bind(this, rootView);
         mBtnOperate.setText(mButtonText);
+        if (TextUtils.isEmpty(mScore)){
+            mTvScore.setVisibility(View.INVISIBLE);
+        }else {
+            mTvScore.setText(mScore);
+        }
         return rootView;
     }
 
@@ -75,6 +81,10 @@ public class TetrisDialogFragment extends DialogFragment {
 
     public void setOperate(String s) {
         mButtonText = s;
+    }
+
+    public void setScore(String score) {
+        mScore = score;
     }
 
     @OnClick(R.id.btn_operate)
