@@ -1,5 +1,6 @@
 package yishengma.sino_tetris.ui;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -56,6 +57,7 @@ public class TetrisDialogFragment extends DialogFragment {
     }
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -69,6 +71,7 @@ public class TetrisDialogFragment extends DialogFragment {
             mTvScore.setVisibility(View.INVISIBLE);
         }else {
             mTvScore.setText(mScore);
+            mTvScore.setText("你的得分："+mScore+"分");
         }
         return rootView;
     }

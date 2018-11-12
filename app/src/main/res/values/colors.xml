@@ -7,5 +7,9 @@
     <color name="colorBlue">#a9daf7</color>
     <color name="colorWhite">#fdfdfe</color>
     <color name="colorGrey">#eae8e8</color>
+    <color name="colorBlueDeep">#74c4f4</color>
 
+
+    <drawable name="drawableBlue">#a9daf7</drawable>
+    <drawable name="drawableBlueDeep">#74c4f4</drawable>
 </resources>

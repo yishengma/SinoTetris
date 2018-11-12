@@ -97,7 +97,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
               <ImageButton
-                  android:background="@color/colorBlue"
+                  android:background="@drawable/imbtn_selector"
                   android:scaleType="centerCrop"
                   android:layout_alignParentBottom="true"
                   android:src="@drawable/btn_drop"
@@ -106,7 +106,7 @@
                   android:layout_centerHorizontal="true"
                   android:layout_height="60dp" />
               <ImageButton
-                  android:background="@color/colorBlue"
+                  android:background="@drawable/imbtn_selector"
                   android:scaleType="centerCrop"
                   android:layout_centerVertical="true"
                   android:layout_alignParentStart="true"
@@ -117,7 +117,7 @@
               <ImageButton
                   android:scaleType="centerCrop"
 
-                  android:background="@color/colorBlue"
+                  android:background="@drawable/imbtn_selector"
                   android:layout_centerVertical="true"
                   android:layout_alignParentEnd="true"
                   android:src="@drawable/btn_right"
